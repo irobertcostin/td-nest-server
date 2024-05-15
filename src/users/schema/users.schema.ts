@@ -11,10 +11,8 @@ import { Document } from "mongoose";
 
 export class User extends Document {
     @Prop()
-    first_name: string;
+    full_name: string;
 
-    @Prop()
-    last_name: string;
 
     @Prop({ unique: [true, 'This email is already registered'] })
     email: string
@@ -26,7 +24,20 @@ export class User extends Document {
     address: string
 
     @Prop()
+    city: string
+
+    @Prop()
+    country: string
+
+    @Prop()
     role: string
+
+
+    @Prop({ default: null })
+    confirmationToken: string;
+
+    @Prop({ default: false })
+    isActivated: boolean;
 
 }
 
