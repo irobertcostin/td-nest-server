@@ -1,10 +1,9 @@
-import { HttpException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, ExtractJwt } from "passport-jwt";
 import { Model } from "mongoose";
 import { User } from "./schema/users.schema";
-import { TempPasswords } from "./schema/temp-passwords.schema";
 import * as jwt from 'jsonwebtoken';
 
 
@@ -17,14 +16,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: process.env.JWT_SECRET
+            secretOrKey: process.env.JWT_SECRET,
+            ignoreExpiration: false
         })
     }
 
 
-    async validateUser(payload: any) {
+    async validate(payload: any) {
         const { id } = payload;
-        const user = await this.userModel.findById(id);
+        const user = await this.userModel.findById(id).select("-password");
         if (!user) {
             throw new UnauthorizedException("Log in to access this endpoint")
         }

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseInterceptors, UseGuards } from '@nestjs/common';
 import { EmailInterceptor } from 'src/interceptors/email.interceptor';
 import { IdValidationInterceptor } from 'src/interceptors/id-validation.interceptor';
 import { UsersService } from './users.service';
@@ -11,6 +11,8 @@ import { ActivateUser } from './dto/activate-user.dto';
 import { User } from './schema/users.schema';
 import { PassResetDto } from './dto/pass-reset.dto';
 import { Throttle } from '@nestjs/throttler';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUserDto } from './dto/getuser-dto';
 
 
 @Controller('users')
@@ -77,6 +79,15 @@ export class UsersController {
         body: ActivateUser
     ): Promise<any> {
         return this.userService.confirmPasswordReset(body)
+    }
+
+
+    @Get('get-user')
+    @UseGuards(AuthGuard())
+    async getUser(
+        @Req() req
+    ): Promise<GetUserDto> {
+        return this.userService.getUser(req.user)
     }
 
 

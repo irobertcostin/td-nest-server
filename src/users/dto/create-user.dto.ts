@@ -44,9 +44,4 @@ export class CreateUserDto {
     @IsString()
     readonly country: string
 
-
-    @IsNotEmpty()
-    @IsString()
-    readonly role: string
-
 }

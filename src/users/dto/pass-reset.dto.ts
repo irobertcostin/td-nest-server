@@ -14,6 +14,7 @@ export class PassResetDto {
     @IsNotEmpty()
     readonly email: string;
 
+
     @IsNotEmpty()
     @IsString()
     @MinLength(6)

@@ -91,7 +91,7 @@ export class UsersService {
     }
 
     async register(createUserDto: CreateUserDto): Promise<{ message: string }> {
-        const { full_name, email, password, address, city, country, role } = createUserDto;
+        const { full_name, email, password, address, city, country } = createUserDto;
         const user = await this.userModel.findOne({ email });
         if (user) {
             throw new ConflictException('Adresa email deja inregistrata')
@@ -104,7 +104,6 @@ export class UsersService {
             address,
             city,
             country,
-            role,
             password: hashedPassword,
             confirmationToken
         })
@@ -126,7 +125,6 @@ export class UsersService {
             const token = this.jwtService.sign({ id: user._id })
             return { token }
         } else if (user && user.isActivated == false) {
-
             let email = user.email
 
             if (user.confirmationToken == "") {
@@ -134,6 +132,17 @@ export class UsersService {
                 await this.sendConfirmationEmail(email, confirmationToken)
                 await this.userModel.findOneAndUpdate({ email }, { confirmationToken });
                 return { message: `Un link de validare a fost trimis catre ${email}. Link-ul este valid 15 minute.` }
+            } else {
+                const isTokenExpired = await this.jwtStrategy.isTokenExpired(user.confirmationToken)
+                console.log(isTokenExpired);
+                if (!isTokenExpired) {
+                    return { message: `Un link de validare a fost deja trimis catre ${email}. Link-ul este valid 15 minute.` }
+                } else {
+                    const confirmationToken = this.jwtService.sign({ email }, { expiresIn: 900 });
+                    await this.sendConfirmationEmail(email, confirmationToken)
+                    await this.userModel.findOneAndUpdate({ email }, { confirmationToken });
+                    return { message: `Un link de validare a fost trimis catre ${email}. Link-ul este valid 15 minute.` }
+                }
             }
         }
     }
@@ -191,6 +200,11 @@ export class UsersService {
                 return { message: "Parola a fost resetata cu succes. Acum te poti autentifica." }
             }
         }
+    }
+
+
+    async getUser(user: any): Promise<GetUserDto> {
+        return user;
     }
 
 }

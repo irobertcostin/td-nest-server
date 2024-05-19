@@ -29,10 +29,6 @@ export class User extends Document {
     @Prop()
     country: string
 
-    @Prop()
-    role: string
-
-
     @Prop({ default: null })
     confirmationToken: string;
 
